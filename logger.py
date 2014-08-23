@@ -2,10 +2,6 @@ class Log:
 	suppressWar = False
 
 	@staticmethod
-	def SetWarningSuppress(boole):
-		Log.supressWar = boole
-
-	@staticmethod
 	def Error(msg):
 		print("[7444 ERR] " + msg)
 

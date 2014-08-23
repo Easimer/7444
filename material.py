@@ -2,6 +2,7 @@
 #Material System
 import pygame
 from logger import Log
+import os.path
 
 class MatSys:
 
@@ -9,7 +10,12 @@ class MatSys:
 	@staticmethod
 	def AddMaterial(filepath):
 		Log.Message("Loading material " + filepath)
-		MatSys.materials[filepath] = pygame.image.load(filepath)
+		try:
+			if not MatSys.materials[filepath]: MatSys.materials[filepath] = pygame.image.load(os.path.join(os.path.dirname(__file__), filepath))
+			else: return
+		except pygame.error:
+			Log.Error("Material " + filepath + " not found!!")
+			MatSys.materials[filepath] = pygame.image.load(os.path.join(os.path.dirname(__file__), "data/error.tga"))
 		Log.Message("Available materials: ")
 		for k,v in MatSys.materials.items():
 			print(k,v)
@@ -34,3 +40,17 @@ class MatSys:
 	@staticmethod
 	def Shutdown():
 		MatSys.RemoveAllMaterial()
+
+	@staticmethod
+	def RotateAroundCenter(image, angle):
+		orig_rect = image.get_rect()
+		rot_image = pygame.transform.rotate(image, angle)
+		rot_rect = orig_rect.copy()
+		rot_rect.center = rot_image.get_rect().center
+		rot_image = rot_image.subsurface(rot_rect).copy()
+		return rot_image
+
+	@staticmethod
+	def RotateTexture(name, angle):
+		if MatSys.materials[name]:
+			MatSys.materials[name] = MatSys.RotateAroundCenter(MatSys.materials[name], angle)
