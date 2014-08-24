@@ -13,6 +13,7 @@ class base_entity:
 	texture = None
 	name = None
 	box = None
+	health = 100
 
 	def load(self, engine, position = Vector2D(0,0)): #load() - add assets to the material system
 		self.position = position
@@ -28,3 +29,6 @@ class base_entity:
 
 	def set_pos(self, new_pos):
 		self.position = new_pos
+
+	def hurt(self, hp):
+		self.health -= hp

@@ -10,6 +10,10 @@ import math
 
 from torpedo import PhotonTorpedo
 
+from sfxsys import SfxSys
+
+from enemy import Enemy
+
 class Player(base_entity):
 	texture = "data/space_ship.png"
 	rotation = 0
@@ -23,12 +27,20 @@ class Player(base_entity):
 		MatSys.AddMaterial("data/space_ship_down.png")
 
 	def update(self, dt, engine):
-		keys = engine.properties["keydown"]
-		mousepos = Vector2D(engine.properties["mousepos"])
+		keys = engine.properties["keydown"]	
 		isclick = engine.properties["mousedown"][0]
+
+		if engine.properties["mousedown"][2]:
+			EntitySystem.AddEntity(Enemy)
+
+		mousepos = engine.properties["mousepos"]
 		if isclick:
 			torpedo = EntitySystem.AddEntity(PhotonTorpedo)
-			torpedo.shoot(self.position + Vector2D(0,0.000000001), mousepos)
+			deltaY = mousepos[1] - (self.position + Vector2D(99,34)).y
+			deltaX = mousepos[0] - (self.position + Vector2D(99,34)).x
+			angle = math.atan2(deltaY, deltaX)# * 180 / math.pi
+			torpedo.shoot(self.position + Vector2D(99,34), Vector2D(math.cos(angle), math.sin(angle)))
+			SfxSys.Play("data/sfx/torpedo.wav")
 		if keys:
 			if keys[K_w]:
 				self.position += Vector2D(0, -5) if self.position.y >= 5 else Vector2D(0,0)

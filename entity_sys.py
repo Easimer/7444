@@ -1,8 +1,11 @@
 #7444
 #Entity System
 
+import pygame
 from logger import Log
 from vector2d import Vector2D
+import random
+from material import MatSys
 
 class EntitySystem:
 	entities = {}
@@ -13,10 +16,10 @@ class EntitySystem:
 	def AddEntity(entity, name = None, position = Vector2D(0,0), physics = False, engine = None):
 		nname = None
 		if EntitySystem.draw_over:
-			nname = name if name else (len(EntitySystem.entities) + 1)
-			Log.Message("Spawning entity " + str(entity) + " with name " + str(name if name else "<noname>"))
+			nname = name if name else (random.randint(0, 4563564575785745))
+			Log.Message("Spawning entity " + str(entity) + " with name " + str(nname))
 			ent = entity()
-			ent.name = name
+			ent.name = nname
 			ent.load(engine, position)
 			ent.set_pos(position)
 			EntitySystem.entities[nname] = ent
@@ -37,13 +40,14 @@ class EntitySystem:
 	@staticmethod
 	def Draw(engine):
 		EntitySystem.draw_over = False
-		#EntitySystem.entities["background"].draw(engine)
-		try:
-			for ent in EntitySystem.entities:
-				if not ent == "player" or not ent == "background":
-					EntitySystem.entities[ent].draw(engine)
-		except RuntimeError:
-			pass
+		EntitySystem.entities["background"].draw(engine)
+
+		for ent in EntitySystem.entities:
+			if ent == "player" or ent == "background":
+				pass
+			else:
+				EntitySystem.entities[ent].draw(engine)
+
 		EntitySystem.entities["player"].draw(engine)
 		EntitySystem.draw_over = True
 		for ent in EntitySystem.spawnqueue:
@@ -60,16 +64,23 @@ class EntitySystem:
 
 	@staticmethod
 	def RemoveEntity(name):
-		EntitySystem.entities[name] = None
+		del EntitySystem.entities[name]
 
-	"""@staticmethod
-	def CollisionCheck():
-		lastent = None
+	@staticmethod
+	def CollisionCheck(me, hp = 50):
+		me_rect = MatSys.GetMaterial(me.texture).get_rect()
+		me_x = me.position.x
+		me_y = me.position.y
+		me_w = me_rect.right
+		me_h = me_rect.bottom
 		for ent in EntitySystem.entities:
-			if not lastent:
-				lastent = EntitySystem.entities[ent]
-			elif lastend:
-				ax1,ay1,ax2,ay2,bx1,by1,bx2,by2 = 0,0,0,0,0,0,0,0
-				ax1 = lastent.position.x
-				ay1 = lastent.position.y
-				if lastent.texture:"""
+			if not ent == me.name:
+				if ent == "background" or ent == "player":
+					pass
+				else:
+					entity = EntitySystem.entities[ent]
+					if entity.texture:
+						mat = MatSys.GetMaterial(entity.texture)
+						if pygame.Rect(entity.position.x, entity.position.y, entity.position.x + mat.get_width(), entity.position.y + mat.get_height()).colliderect(pygame.Rect(me_x, me_y, me_x + me_w, me_y + me_h)): 
+							Log.Message("Collision between " + me.name + " and " + ent)
+							entity.hurt(hp)

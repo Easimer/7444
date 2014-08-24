@@ -13,10 +13,15 @@ from ground import Ground
 from vector2d import Vector2D
 from camera import Camera
 from background import Background
+from keys import KeysGuide
+from sfxsys import SfxSys
+
+from enemy import Enemy
 
 import json
 import io
 import os.path
+import random
 
 class Engine:
 	properties = {
@@ -51,11 +56,20 @@ class Engine:
 		Engine.DisplayVideoInfo()
 		Engine.SetCaption(Engine.properties["title"])
 		MatSys.Init()
+		Engine.LoadSounds()
 		#Add required entities
-		EntSys.AddEntity(Player, "player", Vector2D(0,10))
+		EntSys.AddEntity(Player, "player", Vector2D(200,200))
 		EntSys.AddEntity(Camera, "camera")
 		EntSys.AddEntity(Background, "background", Vector2D(-480,-270))
+		KeysGuide.Load()
 		Log.Message("Entering loop")
+		SfxSys.Play("data/sfx/the_final_frontier.wav", True)
+
+	@staticmethod
+	def LoadSounds():
+		SfxSys.LoadSound("data/sfx/torpedo.wav")
+		SfxSys.LoadSound("data/sfx/the_final_frontier.wav")
+
 	@staticmethod
 	def Shutdown():
 		MatSys.Shutdown()
@@ -95,10 +109,11 @@ class Engine:
 	@staticmethod
 	def DrawImage(surface, position):
 		rect = surface.get_rect()
-		Engine.screen.blit(surface, pygame.Rect(position.x, position.y, rect.w, rect.h))
+		Engine.screen.blit(surface, pygame.Rect(position.x, position.y, surface.get_width(), surface.get_height()))
 
 	@staticmethod
 	def PostDraw():
+		KeysGuide.DrawGuide(Engine)
 		pygame.display.flip()
 		pygame.display.update()
 
@@ -119,3 +134,9 @@ class Engine:
 	@staticmethod
 	def update(a,s):
 		pass
+
+	@staticmethod
+	def RandomEnemy(chance):
+		if random.random() < chance:
+			enemy = EntSys.AddEntity(Enemy)
+			enemy.set_pos(Vector2D(random.randint(Engine.properties["screen"][0]/2, Engine.properties["screen"][0]), random.randint(0, Engine.properties["screen"][1])))

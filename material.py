@@ -11,14 +11,13 @@ class MatSys:
 	def AddMaterial(filepath):
 		Log.Message("Loading material " + filepath)
 		try:
-			if not MatSys.materials[filepath]: MatSys.materials[filepath] = pygame.image.load(os.path.join(os.path.dirname(__file__), filepath))
-			else: return
+			try:
+				blahblahblah = MatSys.materials[filepath]
+			except KeyError:
+				MatSys.materials[filepath] = pygame.image.load(os.path.join(os.path.dirname(__file__), filepath))
 		except pygame.error:
 			Log.Error("Material " + filepath + " not found!!")
 			MatSys.materials[filepath] = pygame.image.load(os.path.join(os.path.dirname(__file__), "data/error.tga"))
-		Log.Message("Available materials: ")
-		for k,v in MatSys.materials.items():
-			print(k,v)
 	
 	@staticmethod
 	def GetMaterial(filepath):
