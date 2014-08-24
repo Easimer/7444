@@ -12,7 +12,8 @@ while Engine.properties["running"]:
 	Engine.Event()
 	Engine.KeyInput()
 	Engine.MouseInput()
-	Engine.RandomEnemy(0.01)
+	Engine.GameplayUpdate()
+	Engine.RandomEnemy(0.02)
 	EntSys.Think(0, Engine) #TODO: dt
 	Engine.PreDraw()
 	EntSys.Draw(Engine)

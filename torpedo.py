@@ -7,15 +7,14 @@ from vector2d import Vector2D
 class PhotonTorpedo(base_entity):
 	texture="data/torpedo.tga"
 	target = None
-	velocity = 0.5
+	velocity = 0.8
 	def update(self, dt, engine):
-		if self.velocity < 100: #why not
+		if self.velocity < 100:
 			self.velocity *= 1.1
 		else:
-			#Log.Message("Torpedo is too fast, destroying")
 			EntSys.RemoveEntity(self.name)
 		self.position += self.target * self.velocity
+		EntSys.CollisionCheck(self, 25, True)
 	def shoot(self, start, target):
-		#Log.Message("Shooting torpedo from " + str(start) + " to " + str(target))
 		self.position = start
 		self.target = target

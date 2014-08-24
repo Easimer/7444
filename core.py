@@ -15,7 +15,7 @@ from camera import Camera
 from background import Background
 from keys import KeysGuide
 from sfxsys import SfxSys
-
+from hud import HUD
 from enemy import Enemy
 
 import json
@@ -35,7 +35,10 @@ class Engine:
 		"camera" : None,
 		"lastframe" : 0,
 		"mousepos": (0, 0),
-		"mousedown": (False, False, False)
+		"mousedown": (False, False, False),
+		"score" : 0,
+		"health" : 1000,
+		"energy" : 1000
 	}
 
 	@staticmethod
@@ -57,11 +60,13 @@ class Engine:
 		Engine.SetCaption(Engine.properties["title"])
 		MatSys.Init()
 		Engine.LoadSounds()
+		HUD.Init(Engine)
 		#Add required entities
 		EntSys.AddEntity(Player, "player", Vector2D(200,200))
 		EntSys.AddEntity(Camera, "camera")
 		EntSys.AddEntity(Background, "background", Vector2D(-480,-270))
 		KeysGuide.Load()
+		Engine.properties["font"] = pygame.font.Font("data/fonts/newscycle-regular.ttf", 18)
 		Log.Message("Entering loop")
 		SfxSys.Play("data/sfx/the_final_frontier.wav", True)
 
@@ -71,10 +76,21 @@ class Engine:
 		SfxSys.LoadSound("data/sfx/the_final_frontier.wav")
 
 	@staticmethod
+	def AddPoints(p):
+		Engine.properties["score"] += p
+
+	@staticmethod
 	def Shutdown():
 		MatSys.Shutdown()
 		pygame.quit()
 
+	@staticmethod
+	def GameplayUpdate():
+		if Engine.properties["energy"] < 1000: #ship energy regen
+			Engine.properties["energy"] += 1.2
+	@staticmethod 
+	def WriteText(text):
+		return Engine.properties["font"].render(text, True, (255,255,255))
 	@staticmethod
 	def GetTS(t):
 		if time.time() - Engine.properties["lastframe"] >= t:
@@ -114,6 +130,7 @@ class Engine:
 	@staticmethod
 	def PostDraw():
 		KeysGuide.DrawGuide(Engine)
+		HUD.Draw(Engine)
 		pygame.display.flip()
 		pygame.display.update()
 
@@ -140,3 +157,7 @@ class Engine:
 		if random.random() < chance:
 			enemy = EntSys.AddEntity(Enemy)
 			enemy.set_pos(Vector2D(random.randint(Engine.properties["screen"][0]/2, Engine.properties["screen"][0]), random.randint(0, Engine.properties["screen"][1])))
+
+	@staticmethod
+	def HurtPlayer(hp):
+		Engine.properties["health"] -= hp

@@ -16,7 +16,7 @@ class EntitySystem:
 	def AddEntity(entity, name = None, position = Vector2D(0,0), physics = False, engine = None):
 		nname = None
 		if EntitySystem.draw_over:
-			nname = name if name else (random.randint(0, 4563564575785745))
+			nname = name if name else str(entity).split('.')[1] + str(random.randint(0, 4563564575785745))
 			Log.Message("Spawning entity " + str(entity) + " with name " + str(nname))
 			ent = entity()
 			ent.name = nname
@@ -64,10 +64,13 @@ class EntitySystem:
 
 	@staticmethod
 	def RemoveEntity(name):
-		del EntitySystem.entities[name]
+		try:
+			del EntitySystem.entities[name]
+		except KeyError:
+			Log.Error("Entity with name " + name + " doesn't exists")
 
 	@staticmethod
-	def CollisionCheck(me, hp = 50):
+	def CollisionCheck(me, hp = 50, selfdestroy = False, countplayer = False):
 		me_rect = MatSys.GetMaterial(me.texture).get_rect()
 		me_x = me.position.x
 		me_y = me.position.y
@@ -75,12 +78,16 @@ class EntitySystem:
 		me_h = me_rect.bottom
 		for ent in EntitySystem.entities:
 			if not ent == me.name:
-				if ent == "background" or ent == "player":
+				if ent == "background" or (ent == "player" and (not countplayer)) or "PhotonTorpedo" in ent:
 					pass
 				else:
 					entity = EntitySystem.entities[ent]
 					if entity.texture:
 						mat = MatSys.GetMaterial(entity.texture)
-						if pygame.Rect(entity.position.x, entity.position.y, entity.position.x + mat.get_width(), entity.position.y + mat.get_height()).colliderect(pygame.Rect(me_x, me_y, me_x + me_w, me_y + me_h)): 
-							Log.Message("Collision between " + me.name + " and " + ent)
-							entity.hurt(hp)
+						mat_w = mat.get_width()
+						mat_h = mat.get_height()
+						if not ((me_y + me_h <= entity.position.y) or (me_y >= entity.position.y + mat_h) or (me_x >= entity.position.x + mat_w) or (me_x + me_w <= entity.position.x)): 
+							Log.Message("Collision between " + str(me.name) + " and " + str(ent))
+							if countplayer: me.hurt(hp) 
+							else: entity.hurt(hp)
+							if selfdestroy: EntitySystem.RemoveEntity(me.name)
