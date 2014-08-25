@@ -5,6 +5,7 @@ from material import MatSys
 from entity_sys import EntitySystem as EntSys
 from logger import Log
 import math
+from torpedo import PhotonTorpedo
 
 class Enemy(base_entity):
 	textures = ["data/space_ship_enemy.png", "data/space_ship_cube.png", "data/fluid_ship.tga"]
@@ -25,5 +26,7 @@ class Enemy(base_entity):
 			playerAngle = math.atan2(playerpos.y - self.position.y, playerpos.x - self.position.x)
 			self.addvec = Vector2D(random.randint(-1, 1), random.randint(-1,1)) + Vector2D(math.cos(playerAngle), math.sin(playerAngle))
 			self.movec = 0
+			torpedo = EntSys.AddEntity(PhotonTorpedo)
+			torpedo.shoot(self.position + Vector2D(-16.5, 0), Vector2D(math.cos(playerAngle), math.sin(playerAngle)))
 		self.position += self.addvec
 		self.movec += 1

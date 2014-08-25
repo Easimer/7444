@@ -14,7 +14,8 @@ class PhotonTorpedo(base_entity):
 		else:
 			EntSys.RemoveEntity(self.name)
 		self.position += self.target * self.velocity
-		EntSys.CollisionCheck(self, 25, True)
-	def shoot(self, start, target):
+		EntSys.CollisionCheck(self, 25, True, self.byenemy)
+	def shoot(self, start, target, shootbyenemy = False):
 		self.position = start
 		self.target = target
+		self.byenemy = shootbyenemy

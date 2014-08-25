@@ -10,10 +10,11 @@ from material import MatSys
 class EntitySystem:
 	entities = {}
 	spawnqueue = {}
+	ent_priority = {}
 	draw_over = True
 	name = None
 	@staticmethod
-	def AddEntity(entity, name = None, position = Vector2D(0,0), physics = False, engine = None):
+	def AddEntity(entity, name = None, position = Vector2D(0,0), physics = False, priority = True, engine = None):
 		nname = None
 		if EntitySystem.draw_over:
 			nname = name if name else str(entity).split('.')[1] + str(random.randint(0, 4563564575785745))
