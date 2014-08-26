@@ -7,7 +7,7 @@ import sys
 from logger import Log
 
 def PyGame_Event_Quit(event, engine):
-	engine.properties["running"] = False
+	engine.properties["state"] = "STATE_INVALID_FAGGOT"
 
 def PyGame_Event_Stub(event, engine):
 	pass

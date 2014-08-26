@@ -7,13 +7,16 @@ from vector2d import Vector2D
 from pygame.locals import *
 from logger import Log
 
-class base_entity:
+class base_entity(object):
 	parent = None
 	position = Vector2D(0, 0)
 	texture = None
 	name = None
 	box = None
 	health = 100
+
+	def __init__(self, engine, texture = None):
+		pass
 
 	def load(self, engine, position = Vector2D(0,0)): #load() - add assets to the material system
 		self.position = position

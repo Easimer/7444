@@ -10,7 +10,6 @@ from material import MatSys
 class EntitySystem:
 	entities = {}
 	spawnqueue = {}
-	ent_priority = {}
 	draw_over = True
 	name = None
 	@staticmethod
@@ -19,7 +18,7 @@ class EntitySystem:
 		if EntitySystem.draw_over:
 			nname = name if name else str(entity).split('.')[1] + str(random.randint(0, 4563564575785745))
 			Log.Message("Spawning entity " + str(entity) + " with name " + str(nname))
-			ent = entity()
+			ent = entity(engine)
 			ent.name = nname
 			ent.load(engine, position)
 			ent.set_pos(position)
@@ -37,6 +36,7 @@ class EntitySystem:
 				EntitySystem.entities[ent].update(dt, engine)
 		except RuntimeError:
 			pass
+		
 
 	@staticmethod
 	def Draw(engine):
