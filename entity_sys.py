@@ -79,7 +79,7 @@ class EntitySystem:
 		me_h = me_rect.bottom
 		for ent in EntitySystem.entities:
 			if not ent == me.name:
-				if ent == "background" or (ent == "player" and (not countplayer)) or "PhotonTorpedo" in ent:
+				if (ent == "background" or (ent == "player" and (not countplayer)) or "PhotonTorpedo" in ent):
 					pass
 				else:
 					entity = EntitySystem.entities[ent]

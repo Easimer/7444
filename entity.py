@@ -14,6 +14,7 @@ class base_entity(object):
 	name = None
 	box = None
 	health = 100
+	shield = False
 
 	def __init__(self, engine, texture = None):
 		pass

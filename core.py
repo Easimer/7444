@@ -8,7 +8,7 @@ from material import MatSys
 from logger import Log
 from events import *
 from entity_sys import EntitySystem as EntSys
-from player import Player
+from player import *
 from ground import Ground
 from vector2d import Vector2D
 from camera import Camera
@@ -18,6 +18,8 @@ from sfxsys import SfxSys
 from hud import HUD
 from enemy import Enemy
 from menu import Menu
+import states
+from steamworks import Steam
 
 import json
 import io
@@ -28,6 +30,7 @@ class Engine:
 	properties = {
 		"screen" : (800, 600),
 		"display" : (800,600),
+		"configfile" : None,
 		"title" : "7444",
 		"state" : "STATE_LOADING",
 		"entsys" : EntSys,
@@ -38,6 +41,7 @@ class Engine:
 		"mousepos": (0, 0),
 		"mousedown": (False, False, False),
 		"score" : 0,
+		"money" : 0,
 		"max_health" : 1000,
 		"health" : 0,
 		"energy" : 1000,
@@ -46,14 +50,25 @@ class Engine:
 		"e_shoot" : True,
 		"spawn_chance" : 0.02,
 		"energy_regen" : 2.2,
-		"torpedo_cost" : 10
+		"torpedo_cost" : 10,
+		"running" : True,
+		"states" : {
+			"state_menu" : None,
+			"state_play" : None
+		},
+		"upgrades" : {
+			"hp_mp" : 1,
+			"e_mp" : 1
+		}
 	}
 
 	@staticmethod
 	def Init():
+		#Steam.Init()
 		Log.Message("Engine init")
 		try:
 			config = json.loads(open(os.path.join(os.path.dirname(__file__), "game.cfg"), "r").read())
+			Engine.properties["configfile"] = config
 			Engine.properties["screen"] = (config["resolution"][0], config["resolution"][1])
 			Engine.properties["title"] = config["title"]
 			Engine.properties["max_health"] = config["gameplay"]["player_health"]
@@ -79,13 +94,15 @@ class Engine:
 		Menu.Init(Engine)
 		Engine.properties["state"] = "STATE_MENU"
 
-
 	@staticmethod 
 	def StartGame():
-		Engine.properties["state"] = "STATE_RUNNING"
+		EntSys.ClearEntities()
+		MatSys.RemoveAllMaterial()
+		Engine.properties["score"] = 0
+		Engine.properties["state"] = "STATE_PLAY"
 		HUD.Init(Engine)
 		#Add required entities
-		EntSys.AddEntity(Player, "player", Vector2D(200,200))
+		EntSys.AddEntity(Player, "player", Vector2D(200,200), engine=Engine)
 		EntSys.AddEntity(Camera, "camera")
 		EntSys.AddEntity(Background, "background", Vector2D(-480,-270))
 		KeysGuide.Load()
@@ -101,6 +118,7 @@ class Engine:
 	@staticmethod
 	def AddPoints(p):
 		Engine.properties["score"] += p
+		Engine.properties["money"] += p
 
 	@staticmethod
 	def Shutdown():
@@ -110,10 +128,12 @@ class Engine:
 	@staticmethod
 	def GameplayUpdate():
 		if Engine.properties["energy"] < 1000: #ship energy regen
-			Engine.properties["energy"] += Engine.properties["energy_regen"]
+			Engine.properties["energy"] += Engine.properties["energy_regen"] * Engine.properties["upgrades"]["e_mp"]
+
 	@staticmethod 
 	def WriteText(text):
 		return Engine.properties["font"].render(text, True, (255,255,255))
+
 	@staticmethod
 	def GetTS(t):
 		if time.time() - Engine.properties["lastframe"] >= t:

@@ -1,2 +1,4 @@
 *.pyc
+*.lib
+data/steam
 __README.txt
