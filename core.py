@@ -59,7 +59,8 @@ class Engine:
 		"upgrades" : {
 			"hp_mp" : 1,
 			"e_mp" : 1
-		}
+		},
+		"debug" : False
 	}
 
 	@staticmethod
